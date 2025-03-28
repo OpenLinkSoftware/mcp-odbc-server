@@ -55,6 +55,7 @@ const server = new McpServer({
  */
 server.tool(
     "get_tables",
+    `Retrieve and return a list containing information about tables in specified schema, if empty uses connection default`, 
     { schema: z.string().optional(), user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional() },
     async ({ schema = null, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
         let connection;
@@ -88,6 +89,8 @@ server.tool(
  */
 server.tool(
     "describe_table",
+    `Retrieve and return a dictionary containing the definition of a table, including column names, data types, nullable,
+     autoincrement, primary key, and foreign keys.`,
     { schema: z.string(), table: z.string(), user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional() },
     async ({ schema, table, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
         let connection;
@@ -117,6 +120,7 @@ server.tool(
  */
 server.tool(
     "query_database",
+    `Execute a SQL query and return results in JSON format.`,
     { query: z.string(), user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional() },
     async ({ query, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
         let connection;
@@ -148,6 +152,7 @@ server.tool(
  */
 server.tool(
     "spasql_query",
+    `Execute a SPASQL query and return results.`,
     {
         query: z.string(), max_rows: z.number().optional(), timeout: z.number().optional(),
         user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional()
@@ -183,6 +188,7 @@ server.tool(
  */
 server.tool(
     "sparql_query",
+    `Execute a SPARQL query and return results.`,
     {
         query: z.string(), format: z.string().optional(), timeout: z.number().optional(),
         user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional()
@@ -216,6 +222,7 @@ server.tool(
  */
 server.tool(
     "virtuoso_support_ai",
+    `Tool to use the Virtuoso AI support function`,
     {
         prompt: z.string(), api_key: z.string().optional(),
         user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional()

@@ -62,7 +62,7 @@ server.tool(
             // Establish database connection using provided credentials
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             // Retrieve table information using ODBC tables method
-            const data = await connection.tables(null, schema, null, null);
+            const data = await connection.tables(schema, null, null, null);
             // Return data as formatted JSON
             return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
         } catch (error) {
@@ -95,7 +95,7 @@ server.tool(
             // Establish database connection
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             // Retrieve column information for the specified table
-            const data = await connection.columns(null, schema, table, null);
+            const data = await connection.columns(schema, null, table, null);
             return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
         } catch (error) {
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };

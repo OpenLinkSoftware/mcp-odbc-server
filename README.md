@@ -34,11 +34,10 @@ After successful installation, the following tools will be available to MCP clie
 
 |name|description|
 |---|---|
-|get_qualifiers|Retrieve and return a list of all database qualifier for the connected DBMS|
-|get_schemas|Retrieve and return a list of all schema names from the connected database.|
-|get_tables|Retrieve and return a list containing information about tables whose names contain the substring 'q' in the format [{'schema': 'schema_name', 'table': 'table_name'}, {'schema': 'schema_name', 'table': 'table_name'}].|
-|describe_table|Retrieve and return a dictionary containing the definition of a table, including column names, data types, nullable, autoincrement, primary key, and foreign keys|
-|filter_table_names|Retrieve and return a list containing information about tables whose names contain the substring 'q' in the format [{'schema': 'schema_name', 'table': 'table_name'}, {'schema': 'schema_name', 'table': 'table_name'}].|
+|get_schemas|List database schemas accessible to connected database management system (DBMS).|
+|get_tables|List tables associated with a selected database schema.|
+|describe_table|Provide the description of a table associated with a designated database schema. This includes information about column names, data types, nulls handling, autoincrement, primary key, and foreign keys|
+|filter_table_names|List tables, based on a substring pattern from the `q` input field, associated with a selected database schema.|
 |query_database|Execute a SQL query and return results in JSONL format.|
 |execute_query|Execute a SQL query and return results in JSONL format.|
 |execute_query_md|Execute a SQL query and return results in Markdown table format.|

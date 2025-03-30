@@ -2,9 +2,7 @@
 
 This document covers the setup and use of a generic ODBC server for the Model Context Protocol (MCP), referred to as an mcp-odbc server. It has been developed to provide Large Language Models with transparent access to ODBC-accessible data sources via a Data Source Name configured for a specific ODBC Connector (or Driver).
 
-
 ![mcp-client-and-servers|648x499](https://www.openlinksw.com/data/screenshots/mcp-architecture.png)
-
 
 ## Server Implementation
 

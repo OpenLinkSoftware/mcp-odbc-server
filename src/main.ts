@@ -61,7 +61,7 @@ server.tool(
         try {
             // Establish database connection using provided credentials
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
-            const catalogsResult = await connection.query("SELECT DISTINCT name_part(KEY_TABLE,0) AS CATALOG_NAME FROM SYS_KEYS where __any_grants(KEY_TABLE) and table_type (KEY_TABLE) = 'TABLE' and KEY_IS_MAIN = 1 and KEY_MIGRATE_TO is NULL");
+            const catalogsResult = await connection.query("SELECT DISTINCT name_part(KEY_TABLE,0) AS CATALOG_NAME FROM DB.DBA.SYS_KEYS where __any_grants(KEY_TABLE) and table_type (KEY_TABLE) = 'TABLE' and KEY_IS_MAIN = 1 and KEY_MIGRATE_TO is NULL");
             const catalogs = catalogsResult.map(row => row.CATALOG_NAME);
 
             return { content: [{ type: "text", text: JSON.stringify(Array.from(new Set(catalogs)), null, 2) }] };
@@ -371,5 +371,10 @@ server.tool(
 
 // Create a server transport mechanism using standard input/output
 const transport = new StdioServerTransport();
-// Connect the server to the transport to start handling requests
-await server.connect(transport);
+
+async function odbc_srv() {
+  // Connect the server to the transport to start handling requests
+  await server.connect(transport);
+}
+
+odbc_srv();

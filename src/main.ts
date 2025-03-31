@@ -372,9 +372,5 @@ server.tool(
 // Create a server transport mechanism using standard input/output
 const transport = new StdioServerTransport();
 
-async function odbc_srv() {
-  // Connect the server to the transport to start handling requests
-  await server.connect(transport);
-}
-
-odbc_srv();
+// Connect the server to the transport to start handling requests
+server.connect(transport);

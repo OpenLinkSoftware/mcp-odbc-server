@@ -111,42 +111,6 @@ server.tool(
  * - dsn: ODBC data source name (defaults to env value)
  */
 server.tool(
-    "virt_get_tables",
-    `Retrieve and return a list of all schema names from the connected Virtuoso database.`,
-    { schema: z.string().optional(), user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional() },
-    async ({ schema = "%", user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
-        let connection;
-        try {
-            // Establish database connection using provided credentials
-            connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
-            const result = await connection.query(`
-            SELECT 
-            name_part(KEY_TABLE,0) AS TABLE_CAT VARCHAR(128),
-	        name_part(KEY_TABLE,1) AS TABLE_SCHEM VARCHAR(128),
-	        name_part(KEY_TABLE,2) AS TABLE_NAME VARCHAR(128)
-            FROM DB.DBA.SYS_KEYS 
-            WHERE __any_grants(KEY_TABLE) AND 
-                UPPER(name_part(KEY_TABLE,0)) LIKE UPPER(?) AND 
-                locate (concat ('G', table_type (KEY_TABLE)), 'GTABLEGVIEW') > 0 AND 
-                KEY_IS_MAIN = 1 AND
-                KEY_MIGRATE_TO IS NULL
-            ORDER BY 2, 3
-            `, [schema]);
-
-            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-        } catch (error) {
-            // Return error information if any exception occurs
-            return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
-        } finally {
-            // Ensure connection is closed even if an error occurs
-            if (connection) {
-                await connection.close();
-            }
-        }
-    }
-);
-
-server.tool(
     "get_tables",
     `Retrieve and return a list containing information about tables in specified schema, if empty uses connection default`, 
     { schema: z.string().optional(), user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional() },
@@ -159,48 +123,6 @@ server.tool(
             const data = await connection.tables(schema, null, null, null);
             // Return data as formatted JSON
             return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
-        } catch (error) {
-            // Return error information if any exception occurs
-            return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
-        } finally {
-            // Ensure connection is closed even if an error occurs
-            if (connection) {
-                await connection.close();
-            }
-        }
-    }
-);
-
-server.tool(
-    "virt_filter_table_names",
-    `Retrieve and return a list containing information about tables whose names contain the substring 'q' from Virtuoso database`,
-    { q: z.string(), schema: z.string().optional(), user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional() },
-    async ({ q, schema = null, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
-        let connection;
-        try {
-            // Establish database connection using provided credentials
-            connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
-            // Retrieve table information using ODBC tables method
-            const tablesInfo: TableInfo[] = [];
-            const data = await connection.query(`
-            SELECT 
-            name_part(KEY_TABLE,0) AS TABLE_CAT VARCHAR(128),
-	        name_part(KEY_TABLE,1) AS TABLE_SCHEM VARCHAR(128),
-	        name_part(KEY_TABLE,2) AS TABLE_NAME VARCHAR(128)
-            FROM DB.DBA.SYS_KEYS 
-            WHERE __any_grants(KEY_TABLE) AND 
-                locate (concat ('G', table_type (KEY_TABLE)), 'GTABLEGVIEW') > 0 AND 
-                KEY_IS_MAIN = 1 AND
-                KEY_MIGRATE_TO IS NULL
-            ORDER BY 2, 3
-            `);
-            // Return data as formatted JSON
-            for (const row of data) {
-                if (row.TABLE_NAME.includes(q)) {
-                    tablesInfo.push(row);
-                }
-            }
-            return { content: [{ type: "text", text: JSON.stringify(tablesInfo, null, 2) }] };
         } catch (error) {
             // Return error information if any exception occurs
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };

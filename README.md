@@ -64,15 +64,15 @@ The path for this config file is: `~{username}/Library/Application Support/Claud
 {
     "mcpServers": {
         "ODBC": {
-            "command": "/Users/kidehen/.nvm/versions/node/v21.1.0/bin/node",
+            "command": "/path/to/.nvm/versions/node/v21.1.0/bin/node",
             "args": [
-                "/Users/kidehen/Documents/Management/Development/modelcontextprotocol/mcp-odbc-server/node_modules/.bin/tsx",
-                "/Users/kidehen/Documents/Management/Development/modelcontextprotocol/mcp-odbc-server/main.ts"
+                "/path/to/tsx",
+                "/path/to/mcp-odbc-server/main.ts"
             ],
             "env": {
                 "ODBCINI": "/Library/ODBC/odbc.ini",
                 "NODE_VERSION": "v21.1.0",
-                "PATH": "/Users/kidehen/.nvm/versions/node/v21.1.0/bin:${PATH}"
+                "PATH": "~/.nvm/versions/node/v21.1.0/bin:${PATH}"
             },
             "disabled": false,
             "autoApprove": []
@@ -98,15 +98,15 @@ The path for this config file is: `~{username}/Library/Application\ Support/Code
 {
   "mcpServers": {
     "ODBC": {
-      "command": "/Users/kidehen/.nvm/versions/node/v21.1.0/bin/node",
+      "command": "/path/to/.nvm/versions/node/v21.1.0/bin/node",
       "args": [
-        "/Users/kidehen/Documents/Management/Development/modelcontextprotocol/mcp-odbc-server/node_modules/.bin/tsx",
-        "/Users/kidehen/Documents/Management/Development/modelcontextprotocol/mcp-odbc-server/main.ts"
+        "/path/to/mcp-odbc-server/node_modules/.bin/tsx",
+        "/path/to/mcp-odbc-server/main.ts"
       ],
       "env": {
         "ODBCINI": "/Library/ODBC/odbc.ini",
         "NODE_VERSION": "v21.1.0",
-        "PATH": "/Users/kidehen/.nvm/versions/node/v21.1.0/bin:${PATH}"
+        "PATH": "/path/to/.nvm/versions/node/v21.1.0/bin:${PATH}"
       },
       "disabled": false,
       "autoApprove": []

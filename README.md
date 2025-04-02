@@ -14,7 +14,7 @@ While the examples that follow are oriented toward the Virtuoso ODBC Connector, 
 
 ### Key System Components
 1. Check the node.js version; if it's not 21.1.0, upgrade or install explicitly using: `nvm install v21.1.0`
-2. Install MCP components using: `npm install @modelcontextprotocol/sdk zod tsx odbc`
+2. Install MCP components using: `npm install @modelcontextprotocol/sdk zod tsx odbc dotenv`
 3. Set the `nvm` version using: `nvm alias default 21.1.0`
 
 ### Environment Variables

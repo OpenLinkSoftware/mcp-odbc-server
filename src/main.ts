@@ -45,6 +45,20 @@ const server = new McpServer({
     version: "1.0.13"
 });
 
+function dataToMD (data) {
+    if (data.length === 0)
+        return "No results found.";
+    const columns = Object.keys(data[0]);
+    let mdTable = `| ${columns.join(' | ')} |\n`;
+    mdTable += `| ${columns.map(() => '---').join(' | ')} |\n`;
+
+    for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+        mdTable += `| ${columns.map(col => String(row[col] || '')).join(' | ')} |\n`;
+    }
+    return mdTable;
+}
+
 /**
  * Tool to retrieve all schema names from the database
  * Parameters:
@@ -55,16 +69,22 @@ const server = new McpServer({
 server.tool(
     "virt_get_schemas",
     `Retrieve and return a list of all schema names from the connected Virtuoso database.`,
-    { user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional() },
-    async ({ user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
+    { user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional(), format: z.string().optional() },
+    async ({ user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
         let connection;
         try {
             // Establish database connection using provided credentials
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
-            const catalogsResult = await connection.query("SELECT DISTINCT name_part(KEY_TABLE,0) AS CATALOG_NAME FROM DB.DBA.SYS_KEYS where __any_grants(KEY_TABLE) and table_type (KEY_TABLE) = 'TABLE' and KEY_IS_MAIN = 1 and KEY_MIGRATE_TO is NULL");
-            const catalogs = catalogsResult.map(row => row.CATALOG_NAME);
+            const catalogs = await connection.query("SELECT DISTINCT name_part(KEY_TABLE,0) AS CATALOG_NAME FROM DB.DBA.SYS_KEYS where __any_grants(KEY_TABLE) and table_type (KEY_TABLE) = 'TABLE' and KEY_IS_MAIN = 1 and KEY_MIGRATE_TO is NULL");
+            let tool_result;
+            if ('jsonl' === format)
+                tool_result = catalogs.map(row => JSON.stringify(row)).join("\n");
+            else if ('md' === format)
+                tool_result = dataToMD(catalogs);
+            else
+                tool_result = JSON.stringify(catalogs, null, 2);
 
-            return { content: [{ type: "text", text: JSON.stringify(Array.from(new Set(catalogs)), null, 2) }] };
+            return { content: [{ type: "text", text: tool_result }] };
         } catch (error) {
             // Return error information if any exception occurs
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
@@ -80,16 +100,22 @@ server.tool(
 server.tool(
     "get_schemas",
     `Retrieve and return a list of all schema names from the connected database.`,
-    { user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional() },
-    async ({ user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
+    { user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional(), format: z.string().optional() },
+    async ({ user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
         let connection;
         try {
             // Establish database connection using provided credentials
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             const result = await connection.tables(null, null, null, null);
-            const catalogs = [...new Set(result.map(item => item.TABLE_QUALIFIER))];
-
-            return { content: [{ type: "text", text: JSON.stringify(catalogs, null, 2) }] };
+            const catalogs = [...new Set(result.map(item => item.TABLE_QUALIFIER))].map(name => ({ CATALOG_NAME: name }));;
+            let tool_result;
+            if ('jsonl' === format)
+                tool_result = catalogs.map(row => JSON.stringify(row)).join("\n");
+            else if ('md' === format)
+                tool_result = dataToMD(catalogs);
+            else
+                tool_result = JSON.stringify(catalogs, null, 2);
+            return { content: [{ type: "text", text: tool_result }] };
         } catch (error) {
             // Return error information if any exception occurs
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
@@ -113,8 +139,9 @@ server.tool(
 server.tool(
     "get_tables",
     `Retrieve and return a list containing information about tables in specified schema, if empty uses connection default`, 
-    { schema: z.string().optional(), user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional() },
-    async ({ schema = null, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
+    { schema: z.string().optional(), user: z.string().optional(), password: z.string().optional(),
+        dsn: z.string().optional(), format: z.string().optional() },
+    async ({ schema = null, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
         let connection;
         try {
             // Establish database connection using provided credentials
@@ -122,7 +149,14 @@ server.tool(
             // Retrieve table information using ODBC tables method
             const data = await connection.tables(schema, null, null, null);
             // Return data as formatted JSON
-            return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+            let tool_result;
+            if ('jsonl' === format)
+                tool_result = data.map(row => JSON.stringify(row)).join("\n");
+            else if ('md' === format)
+                tool_result = dataToMD(data);
+            else
+                tool_result = JSON.stringify(data, null, 2);
+            return { content: [{ type: "text", text: tool_result }] };
         } catch (error) {
             // Return error information if any exception occurs
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
@@ -138,8 +172,9 @@ server.tool(
 server.tool(
     "filter_table_names",
     `Retrieve and return a list containing information about tables whose names contain the substring 'q'`,
-    { q: z.string(), schema: z.string().optional(), user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional() },
-    async ({ q, schema = null, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
+    { q: z.string(), schema: z.string().optional(), user: z.string().optional(), password: z.string().optional(),
+        dsn: z.string().optional(), format: z.string().optional() },
+    async ({ q, schema = null, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
         let connection;
         try {
             // Establish database connection using provided credentials
@@ -153,7 +188,14 @@ server.tool(
                     tablesInfo.push(row);
                 }
             }
-            return { content: [{ type: "text", text: JSON.stringify(tablesInfo, null, 2) }] };
+            let tool_result;
+            if ('jsonl' === format)
+                tool_result = tablesInfo.map(row => JSON.stringify(row)).join("\n");
+            else if ('md' === format)
+                tool_result = dataToMD(tablesInfo);
+            else
+                tool_result = JSON.stringify(tablesInfo, null, 2);
+            return { content: [{ type: "text", text: tool_result }] };
         } catch (error) {
             // Return error information if any exception occurs
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
@@ -179,15 +221,23 @@ server.tool(
     "describe_table",
     `Retrieve and return a dictionary containing the definition of a table, including column names, data types, nullable,
      autoincrement, primary key, and foreign keys.`,
-    { schema: z.string(), table: z.string(), user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional() },
-    async ({ schema, table, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
+    { schema: z.string(), table: z.string(), user: z.string().optional(), password: z.string().optional(),
+        dsn: z.string().optional(), format: z.string().optional() },
+    async ({ schema, table, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
         let connection;
         try {
             // Establish database connection
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             // Retrieve column information for the specified table
             const data = await connection.columns(schema, null, table, null);
-            return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+            let tool_result;
+            if ('jsonl' === format)
+                tool_result = data.map(row => JSON.stringify(row)).join("\n");
+            else if ('md' === format)
+                tool_result = dataToMD(data);
+            else
+                tool_result = JSON.stringify(data, null, 2);
+            return { content: [{ type: "text", text: tool_result }] };
         } catch (error) {
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
         } finally {
@@ -208,16 +258,24 @@ server.tool(
  */
 server.tool(
     "query_database",
-    `Execute a SQL query and return results in JSON format.`,
-    { query: z.string(), user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional() },
-    async ({ query, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
+    `Execute a SQL query and return results in JSON, JSONL or MD format.`,
+    { query: z.string(), user: z.string().optional(), password: z.string().optional(),
+        dsn: z.string().optional(), format: z.string().optional() },
+    async ({ query, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
         let connection;
         try {
             // Establish database connection
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             // Execute the provided SQL query
             const data = await connection.query(query);
-            return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
+            let tool_result;
+            if ('jsonl' === format)
+                tool_result = data.map(row => JSON.stringify(row)).join("\n");
+            else if ('md' === format)
+                tool_result = dataToMD(data);
+            else
+                tool_result = JSON.stringify(data, null, 2);
+            return { content: [{ type: "text", text: tool_result }] };
         } catch (error) {
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
         } finally {
@@ -276,9 +334,9 @@ server.tool(
             // Execute the provided SQL query
             const data = await connection.query(query);
 
-            const jsonlResults = data.map(row => JSON.stringify(row)).join("\n");
+            const tool_result = data.map(row => JSON.stringify(row)).join("\n");
 
-            return { content: [{ type: "text", text: jsonlResults }] };
+            return { content: [{ type: "text", text: tool_result }] };
         } catch (error) {
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
         } finally {
@@ -303,16 +361,16 @@ server.tool(
     "spasql_query",
     `Execute a SPASQL query and return results.`,
     {
-        query: z.string(), max_rows: z.number().optional(), timeout: z.number().optional(),
+        query: z.string(), max_rows: z.number().optional(), timeout: z.number().optional(), format: z.string().optional(),
         user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional()
     },
-    async ({ query, max_rows = 20, timeout = 30000, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
+    async ({ query, max_rows = 20, timeout = 30000, format = 'json', user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
         let connection;
         try {
             // Establish database connection
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             // Call the execute_spasql_query stored procedure with parameters
-            const data = await connection.query('select Demo.demo.execute_spasql_query(?,?,?) as result', [query, max_rows, timeout]);
+            const data = await connection.query('select Demo.demo.execute_spasql_query(?,?,?,?) as result', [query, max_rows, timeout, format]);
             // Return just the result field from the first row
             return { content: [{ type: "text", text: data[0].result }] };
         } catch (error) {

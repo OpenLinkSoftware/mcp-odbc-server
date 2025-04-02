@@ -45,7 +45,7 @@ const server = new McpServer({
     version: "1.0.13"
 });
 
-function dataToMD (data) {
+function dataToMD (data: any) {
     if (data.length === 0)
         return "No results found.";
     const columns = Object.keys(data[0]);
@@ -107,7 +107,7 @@ server.tool(
             // Establish database connection using provided credentials
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             const result = await connection.tables(null, null, null, null);
-            const catalogs = [...new Set(result.map(item => item.TABLE_QUALIFIER))].map(name => ({ CATALOG_NAME: name }));;
+            const catalogs = [...new Set(result.map((item: any) => item.TABLE_QUALIFIER))].map(name => ({ CATALOG_NAME: name }));;
             let tool_result;
             if ('jsonl' === format)
                 tool_result = catalogs.map(row => JSON.stringify(row)).join("\n");
@@ -180,17 +180,17 @@ server.tool(
             // Establish database connection using provided credentials
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             // Retrieve table information using ODBC tables method
-            const tablesInfo: TableInfo[] = [];
+            const tablesInfo: any = [];
             const data = await connection.tables(schema, null, null, null);
             // Return data as formatted JSON
             for (const row of data) {
-                if (row.TABLE_NAME.includes(q)) {
+                if ((row as any).TABLE_NAME.includes(q)) {
                     tablesInfo.push(row);
                 }
             }
             let tool_result;
             if ('jsonl' === format)
-                tool_result = tablesInfo.map(row => JSON.stringify(row)).join("\n");
+                tool_result = tablesInfo.map((row: any) => JSON.stringify(row)).join("\n");
             else if ('md' === format)
                 tool_result = dataToMD(tablesInfo);
             else
@@ -302,12 +302,12 @@ server.tool(
                 return { content: [{ type: "text", text: "No results found." }] };
             }
 
-            const columns = Object.keys(data[0]);
+            const columns = Object.keys(data[0] as { [key: string]: any });
             let mdTable = `| ${columns.join(' | ')} |\n`;
             mdTable += `| ${columns.map(() => '---').join(' | ')} |\n`;
 
             for (let i = 0; i < data.length; i++) {
-                const row = data[i];
+                const row: any = data[i];
                 mdTable += `| ${columns.map(col => String(row[col] || '')).join(' | ')} |\n`;
             }
 
@@ -370,9 +370,10 @@ server.tool(
             // Establish database connection
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             // Call the execute_spasql_query stored procedure with parameters
+            type ResultRow = { result: string };
             const data = await connection.query('select Demo.demo.execute_spasql_query(?,?,?,?) as result', [query, max_rows, timeout, format]);
             // Return just the result field from the first row
-            return { content: [{ type: "text", text: data[0].result }] };
+            return { content: [{ type: "text", text: (data[0] as ResultRow).result }] };
         } catch (error) {
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
         } finally {
@@ -407,7 +408,8 @@ server.tool(
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             // Call the sparqlQuery function with parameters
             const data = await connection.query('select "UB".dba."sparqlQuery"(?,?,?) as result', [query, format, timeout]);
-            return { content: [{ type: "text", text: data[0].result }] };
+            type ResultRow = { result: string };
+            return { content: [{ type: "text", text: (data[0] as ResultRow).result }] };
         } catch (error) {
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
         } finally {
@@ -441,7 +443,8 @@ server.tool(
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             // Call the OAI_VIRTUOSO_SUPPORT_AI function with prompt and API key
             const data = await connection.query('select DEMO.DBA.OAI_VIRTUOSO_SUPPORT_AI(?,?) as result', [prompt, api_key]);
-            return { content: [{ type: "text", text: data[0].result }] };
+            type ResultRow = { result: string };
+            return { content: [{ type: "text", text: (data[0] as ResultRow).result }] };
         } catch (error) {
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
         } finally {

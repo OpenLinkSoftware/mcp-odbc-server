@@ -17,6 +17,11 @@ While the examples that follow are oriented toward the Virtuoso ODBC Connector, 
 2. Install MCP components using: `npm install @modelcontextprotocol/sdk zod tsx odbc dotenv`
 3. Set the `nvm` version using: `nvm alias default 21.1.0`
 
+### unixODBC Runtime Environment Checks
+
+1. Check installation configuration (i.e., location of key INI files) by running: `odbcinst -j`
+2. List available data source names by running: `odbcinst -q -s`
+
 ### Environment Variables
 As good security practice, you should use the `.env` file situated in the same directory as the `mcp-ser` to set bindings for the target Large Language Model API Key (if you want to use the OpenLink AI Layer (OPAL) via ODBC), ODBC Data Source Name (ODBC_DSN), User (ODBC_USER), Password (ODBC_PWD), and ODBC INI (ODBCINI).
 

@@ -17,6 +17,14 @@ While the examples that follow are oriented toward the Virtuoso ODBC Connector, 
 2. Install MCP components using: `npm install @modelcontextprotocol/sdk zod tsx odbc dotenv`
 3. Set the `nvm` version using: `nvm alias default 21.1.0`
 
+### Installation
+
+1. Run `git clone https://github.com/OpenLinkSoftware/mcp-odbc-server.git`
+2. Change directory `cd mcp-odbc-server`
+3. Run `npm init -y`
+4. Add entry `"type":"module"` to the `package.json` file
+5. Run `npm install @modelcontextprotocol/sdk zod tsx odbc dotenv`
+
 ### unixODBC Runtime Environment Checks
 
 1. Check installation configuration (i.e., location of key INI files) by running: `odbcinst -j`
@@ -54,7 +62,7 @@ After successful installation, the following tools will be available to MCP clie
 
 1. Start the inspector from the mcp-server directory/folder using the following command:
     ```sh
-    npx -y @modelcontextprotocol/inspector npx tsx ./src/main.ts 
+    ODBCINI=/Library/ODBC/odbc.ini npx -y @modelcontextprotocol/inspector npx tsx ./src/main.ts 
     ```
 2. Click on the "Connect" button, then click on the "Tools" tab to get started.
 

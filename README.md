@@ -49,7 +49,7 @@ After successful installation, the following tools will be available to MCP clie
 
 1. Start the inspector from the mcp-server directory/folder using the following command:
     ```sh
-    npx -y @modelcontextprotocol/inspector npx tsx main.ts 
+    npx -y @modelcontextprotocol/inspector npx tsx ./src/main.ts 
     ```
 2. Click on the "Connect" button, then click on the "Tools" tab to get started.
 

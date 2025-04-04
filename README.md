@@ -45,6 +45,7 @@ ODBCINI=/Library/ODBC/odbc.ini
 ## Tools
 After successful installation, the following tools will be available to MCP client applications.
 
+### Overview
 |name|description|
 |---|---|
 |get_schemas|List database schemas accessible to connected database management system (DBMS).|
@@ -57,6 +58,104 @@ After successful installation, the following tools will be available to MCP clie
 |spasql_query|Execute a SPASQL query and return results.|
 |sparql_query|Execute a SPARQL query and return results.|
 |virtuoso_support_ai|Interact with the Virtuoso Support Assistant/Agent -- a Virtuoso-specific feature for interacting with LLMs|
+
+### Detailed Description
+
+- **get_schemas**
+  - Retrieve and return a list of all schema names from the connected database.
+  - Input parameters:
+    - `user` (string, optional): Database username. Defaults to "demo".
+    - `password` (string, optional): Database password. Defaults to "demo".
+    - `dsn` (string, optional): ODBC data source name. Defaults to "Local Virtuoso".
+  - Returns a JSON string array of schema names.
+
+- **get_tables**
+  - Retrieve and return a list containing information about tables in a specified schema. If no schema is provided, uses the connection's default schema.
+  - Input parameters:
+    - `schema` (string, optional): Database schema to filter tables. Defaults to connection default.
+    - `user` (string, optional): Database username. Defaults to "demo".
+    - `password` (string, optional): Database password. Defaults to "demo".
+    - `dsn` (string, optional): ODBC data source name. Defaults to "Local Virtuoso".
+  - Returns a JSON string containing table information (e.g., TABLE_CAT, TABLE_SCHEM, TABLE_NAME, TABLE_TYPE).
+
+- **filter_table_names**
+  - Filters and returns information about tables whose names contain a specific substring.
+  - Input parameters:
+    - `q` (string, required): The substring to search for within table names.
+    - `schema` (string, optional): Database schema to filter tables. Defaults to connection default.
+    - `user` (string, optional): Database username. Defaults to "demo".
+    - `password` (string, optional): Database password. Defaults to "demo".
+    - `dsn` (string, optional): ODBC data source name. Defaults to "Local Virtuoso".
+  - Returns a JSON string containing information for matching tables.
+
+- **describe_table**
+  - Retrieve and return detailed information about the columns of a specific table.
+  - Input parameters:
+    - `schema` (string, required): The database schema name containing the table.
+    - `table` (string, required): The name of the table to describe.
+    - `user` (string, optional): Database username. Defaults to "demo".
+    - `password` (string, optional): Database password. Defaults to "demo".
+    - `dsn` (string, optional): ODBC data source name. Defaults to "Local Virtuoso".
+  - Returns a JSON string describing the table's columns (e.g., COLUMN_NAME, TYPE_NAME, COLUMN_SIZE, IS_NULLABLE).
+
+- **query_database**
+  - Execute a standard SQL query and return the results in JSON format.
+  - Input parameters:
+    - `query` (string, required): The SQL query string to execute.
+    - `user` (string, optional): Database username. Defaults to "demo".
+    - `password` (string, optional): Database password. Defaults to "demo".
+    - `dsn` (string, optional): ODBC data source name. Defaults to "Local Virtuoso".
+  - Returns query results as a JSON string.
+
+- **query_database_md**
+  - Execute a standard SQL query and return the results formatted as a Markdown table.
+  - Input parameters:
+    - `query` (string, required): The SQL query string to execute.
+    - `user` (string, optional): Database username. Defaults to "demo".
+    - `password` (string, optional): Database password. Defaults to "demo".
+    - `dsn` (string, optional): ODBC data source name. Defaults to "Local Virtuoso".
+  - Returns query results as a Markdown table string.
+
+- **query_database_jsonl**
+  - Execute a standard SQL query and return the results in JSON Lines (JSONL) format (one JSON object per line).
+  - Input parameters:
+    - `query` (string, required): The SQL query string to execute.
+    - `user` (string, optional): Database username. Defaults to "demo".
+    - `password` (string, optional): Database password. Defaults to "demo".
+    - `dsn` (string, optional): ODBC data source name. Defaults to "Local Virtuoso".
+  - Returns query results as a JSONL string.
+
+- **spasql_query**
+  - Execute a SPASQL (SQL/SPARQL hybrid) query return results. This is a Virtuoso-specific feature.
+  - Input parameters:
+    - `query` (string, required): The SPASQL query string.
+    - `max_rows` (number, optional): Maximum number of rows to return. Defaults to 20.
+    - `timeout` (number, optional): Query timeout in milliseconds. Defaults to 30000.
+    - `user` (string, optional): Database username. Defaults to "demo".
+    - `password` (string, optional): Database password. Defaults to "demo".
+    - `dsn` (string, optional): ODBC data source name. Defaults to "Local Virtuoso".
+  - Returns the result from the underlying stored procedure call (e.g., `Demo.demo.execute_spasql_query`).
+
+- **sparql_query**
+  - Execute a SPARQL query and return results. This is a Virtuoso-specific feature.
+  - Input parameters:
+    - `query` (string, required): The SPARQL query string.
+    - `format` (string, optional): Desired result format. Defaults to 'json'.
+    - `timeout` (number, optional): Query timeout in milliseconds. Defaults to 30000.
+    - `user` (string, optional): Database username. Defaults to "demo".
+    - `password` (string, optional): Database password. Defaults to "demo".
+    - `dsn` (string, optional): ODBC data source name. Defaults to "Local Virtuoso".
+  - Returns the result from the underlying function call (e.g., `"UB".dba."sparqlQuery"`).
+
+- **virtuoso_support_ai**
+  - Utilizes a Virtuoso-specific AI Assistant function, passing a prompt and optional API key. This is a Virtuoso-specific feature.
+  - Input parameters:
+    - `prompt` (string, required): The prompt text for the AI function.
+    - `api_key` (string, optional): API key for the AI service. Defaults to "none".
+    - `user` (string, optional): Database username. Defaults to "demo".
+    - `password` (string, optional): Database password. Defaults to "demo".
+    - `dsn` (string, optional): ODBC data source name. Defaults to "Local Virtuoso".
+  - Returns the result from the AI Support Assistant function call (e.g., `DEMO.DBA.OAI_VIRTUOSO_SUPPORT_AI`).
 
 ## Basic Installation Testing & Troubleshooting
 

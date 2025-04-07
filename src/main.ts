@@ -257,7 +257,7 @@ server.tool(
  * - dsn: ODBC data source name (optional)
  * - format: one of json/jsonl/md
  */
-async function query_database(query, user, password, dsn, format) {
+async function query_database(query: string, user: string, password: string, dsn: string, format: string) {
     let connection;
     try {
         // Establish database connection

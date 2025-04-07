@@ -1,0 +1,33 @@
+{
+  "name": "mcp-odbc-server",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "bin": {
+    "mcp-odbc-server": "./src/main.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "tsx src/main.ts",
+    "prepare": "npm run build",
+    "build": "tsc && mv dist/main.js dist/mcp-odbc-server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.8.0",
+    "dotenv": "^16.4.7",
+    "odbc": "^2.4.9",
+    "tsc": "^2.0.4",
+    "tsx": "^4.19.3",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "typescript": "^5.8.2"
+  }
+}

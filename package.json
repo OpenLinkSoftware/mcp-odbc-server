@@ -12,7 +12,7 @@
   "scripts": {
     "start": "tsx src/main.ts",
     "prepare": "npm run build",
-    "build": "tsc && mv dist/main.js dist/mcp-odbc-server.js && [ ! -f dist/.env ] && cp _env dist/.env",
+    "build": "tsc -p tsconfig.json && mv dist/main.js dist/mcp-odbc-server.js && sh -c '[ -f dist/.env ] || cp _env dist/.env'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -22,7 +22,6 @@
     "@modelcontextprotocol/sdk": "^1.9.0",
     "dotenv": "^16.4.7",
     "odbc": "^2.4.9",
-    "tsc": "^2.0.4",
     "tsx": "^4.19.3",
     "zod": "^3.24.2"
   },

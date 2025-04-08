@@ -178,7 +178,7 @@ The path for this config file is: `~{username}/Library/Application Support/Claud
         "ODBC": {
             "command": "/path/to/.nvm/versions/node/v21.1.0/bin/node",
             "args": [
-                "/path/to/tsx",
+                "/path/to/mcp-odbc-server/node_modules/.bin/tsx",
                 "/path/to/mcp-odbc-server/src/main.ts"
             ],
             "env": {

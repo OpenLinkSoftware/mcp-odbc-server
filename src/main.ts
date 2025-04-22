@@ -257,7 +257,7 @@ server.tool(
  * - dsn: ODBC data source name (optional)
  * - format: one of json/jsonl/md
  */
-async function query_database(query: string, user: string, password: string, dsn: string, format: string) {
+async function query_database(query: string, user: string, password: string, dsn: string, format: string): Promise<any> {
     let connection;
     try {
         // Establish database connection
@@ -555,6 +555,51 @@ server.tool(
        return query_database (query, user, password, dsn, format);
     }
 );
+
+server.tool(
+    "chat_prompt_complete",
+    `Tool to use the OPAL backend to complete chat prompt`,
+    {
+        model: z.string(),
+        prompt: z.string(),
+        assistant_config_id: z.string().optional(),
+        function_names: z.string().optional(),
+        temperature: z.number().optional(),
+        top_p: z.number().optional(),
+        max_tokens: z.number().optional(),
+        api_key: z.string().optional(),
+        user: z.string().optional(),
+        password: z.string().optional(),
+        dsn: z.string().optional()
+    },
+    async ({ model,
+             prompt,
+             assistant_config_id = null,
+             function_names = null,
+             temperature = 0.2,
+             top_p = 0.5,
+             max_tokens = null,
+             api_key = API_KEY,
+             user = ODBC_USER,
+             password = ODBC_PASSWORD,
+             dsn = ODBC_DSN }) => {
+        let connection;
+        try {
+            connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
+            const data = await connection.query('select OAI.DBA.chatPromptComplete(?,?,?,?,?,?,?,?) as result', 
+                  [model, prompt, assistant_config_id as any, function_names as any, temperature, top_p, max_tokens as any, api_key]);
+            type ResultRow = { result: string };
+            return { content: [{ type: "text", text: (data[0] as ResultRow).result }] };
+        } catch (error) {
+            return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
+        } finally {
+            if (connection) {
+                await connection.close();
+            }
+        }
+    }
+);
+
 // Create a server transport mechanism using standard input/output
 const transport = new StdioServerTransport();
 

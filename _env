@@ -1,0 +1,5 @@
+API_KEY=sk-***
+ODBC_USER=demo
+ODBC_PASSWORD=demo
+ODBC_DSN=Local Virtuoso
+ODBCINI=/Library/ODBC/odbc.ini

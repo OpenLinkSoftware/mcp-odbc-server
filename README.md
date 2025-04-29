@@ -186,6 +186,8 @@ After successful installation, the following tools will be available to MCP clie
 
 ## Basic Installation Testing & Troubleshooting
 
+### MCP Inspector Tool
+
 1. Start the inspector from the mcp-server directory/folder using the following command:
     ```sh
     ODBCINI=/Library/ODBC/odbc.ini npx -y @modelcontextprotocol/inspector npx tsx ./src/main.ts 
@@ -193,6 +195,69 @@ After successful installation, the following tools will be available to MCP clie
 2. Click on the "Connect" button, then click on the "Tools" tab to get started.
 
     [![MCP Inspector](https://www.openlinksw.com/data/screenshots/mcp-server-inspector-demo-1.png)](https://www.openlinksw.com/data/screenshots/mcp-server-inspector-demo-1.png)
+
+### Apple Silicon (ARM64) Compatibility with MCP ODBC Server Issues
+
+#### Problem
+
+When attempting to use a Model Context Protocol (MCP) ODBC Server on Apple Silicon machines, you may encounter architecture mismatch errors. This occurs because the Node.js ODBC native module (`odbc.node`) is compiled for Intel (x86_64) architecture but is being run on ARM64 architecture.
+
+Typical error message:
+
+```
+Error: dlopen(...odbc.node, 0x0001): tried: '...odbc.node' (mach-o file, but is an incompatible architecture (have 'x86_64', need 'arm64e' or 'arm64'))
+```
+
+#### Solution
+
+1. Verify your Node.js is running in ARM64 mode:
+
+   ```bash
+   node -p "process.arch"  # Should output: arm64
+   ```
+
+2. Install unixODBC for ARM64:
+
+   ```bash
+   # Verify Homebrew is running in ARM64 mode
+   which brew  # Should point to /opt/homebrew/bin/brew
+   
+   # Remove existing unixODBC
+   brew uninstall --force unixodbc
+   
+   # Install ARM64 version
+   arch -arm64 brew install unixodbc
+   ```
+
+3. Rebuild the Node.js ODBC module for ARM64:
+
+   ```bash
+   # Navigate to your project
+   cd /path/to/mcp-odbc-server
+   
+   # Remove existing module
+   rm -rf node_modules/odbc
+   
+   # Set architecture environment variable
+   export npm_config_arch=arm64
+   
+   # Reinstall with force build
+   npm install odbc --build-from-source
+   ```
+
+4. Verify the module is now ARM64:
+
+   ```bash
+   file node_modules/odbc/lib/bindings/napi-v8/odbc.node
+   # Should show "arm64" instead of "x86_64"
+   ```
+
+#### Key Points
+
+- Both unixODBC and the Node.js ODBC module must be ARM64-compatible
+- Using environment variables (`export npm_config_arch=arm64`) is more reliable than npm config commands
+- Always verify architecture with the `file` command or `node -p "process.arch"`
+- When using Homebrew on Apple Silicon, commands should be prefixed with `arch -arm64` to ensure ARM64 binaries
 
 ## MCP Application Usage
 

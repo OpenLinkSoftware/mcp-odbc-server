@@ -188,6 +188,8 @@ After successful installation, the following tools will be available to MCP clie
 
 ### MCP Inspector Tool
 
+#### Canonical MCP Inspector Tool Edition
+
 1. Start the inspector from the mcp-server directory/folder using the following command:
     ```sh
     ODBCINI=/Library/ODBC/odbc.ini npx -y @modelcontextprotocol/inspector npx tsx ./src/main.ts 
@@ -195,6 +197,25 @@ After successful installation, the following tools will be available to MCP clie
 2. Click on the "Connect" button, then click on the "Tools" tab to get started.
 
     [![MCP Inspector](https://www.openlinksw.com/data/screenshots/mcp-server-inspector-demo-1.png)](https://www.openlinksw.com/data/screenshots/mcp-server-inspector-demo-1.png)
+
+#### OpenLink MCP Inspector Tool Edition
+This is a fork of the canonical edition that includes a JSON handling bug fix related to use with this MCP Server.
+
+1. run
+   ```sh
+   git clone git@github.com:OpenLinkSoftware/inspector.git
+   cd inspector
+   ```
+2. run
+   ```sh
+   npm run start
+   ```
+3. Provide the following value in the `Arguments` input field of MCP Inspectors UI from http://localhost:6274
+   ```sh
+   tsx /path-to-mcp-odbc/src/main.ts
+   ```
+4. Click on the `Connect` button to initialize your session with the designated MCP Server
+
 
 ### Apple Silicon (ARM64) Compatibility with MCP ODBC Server Issues
 

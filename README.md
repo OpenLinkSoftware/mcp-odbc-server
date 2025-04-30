@@ -219,9 +219,28 @@ This is a fork of the canonical edition that includes a JSON handling bug fix re
 
 ### Apple Silicon (ARM64) Compatibility with MCP ODBC Server Issues
 
-#### Problem
+#### Node x86_64 vs arm64 Conflict Issue
 
-When attempting to use a Model Context Protocol (MCP) ODBC Server on Apple Silicon machines, you may encounter architecture mismatch errors. This occurs because the Node.js ODBC native module (`odbc.node`) is compiled for Intel (x86_64) architecture but is being run on ARM64 architecture.
+The x86_64 rather rather than arm64 edition of `node` is in place, but the ODBC bridge and MCP server are arm64-based components.
+
+You solve this problem by performing the following steps:
+
+1. Uninstall the x86_64 edition of `node` by running:
+   ```sh
+    nvm uninstall 21.1.0
+   ```
+2. Run the following command to confirm your current shell is in arm64 mode:
+   ```sh
+   arch
+   ```
+3. Install the arm64 edition of `node` by running:
+   ```sh
+   nvm install 21.1.0
+   ```
+
+#### Node to ODBC Bridge Layer Incompatibility
+
+When attempting to use a Model Context Protocol (MCP) ODBC Server on Apple Silicon machines, you may encounter architecture mismatch errors. This occurs because the Node.js ODBC native module (`odbc.node`) is compiled for ARM64 architecture, but attempting to use the x86_64-based edition of the unixODBC runtime.
 
 Typical error message:
 
@@ -229,7 +248,7 @@ Typical error message:
 Error: dlopen(...odbc.node, 0x0001): tried: '...odbc.node' (mach-o file, but is an incompatible architecture (have 'x86_64', need 'arm64e' or 'arm64'))
 ```
 
-#### Solution
+You solve this problem by performing the following steps:
 
 1. Verify your Node.js is running in ARM64 mode:
 

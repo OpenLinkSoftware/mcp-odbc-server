@@ -1,19 +1,20 @@
 # Introduction
 
-This document covers the setup and use of a generic ODBC server for the Model Context Protocol (MCP), referred to as an mcp-odbc server. It has been developed to provide Large Language Models with transparent access to ODBC-accessible data sources via a Data Source Name configured for a specific ODBC Connector (also called an ODBC Driver).
+This document covers the set up and use of a generic ODBC server for the Model Context Protocol (MCP), referred to as an `mcp-odbc` server. It has been developed to provide Large Language Models with transparent access to ODBC-accessible data sources via a Data Source Name configured for a specific ODBC Connector (also called an ODBC Driver).
 
 ![mcp-client-and-servers|648x499](https://www.openlinksw.com/data/gifs/mcp-client-and-servers.gif)
 
 ## Server Implementation
 
-This MCP Server for ODBC is a small TypeScript layer built on top of `node-odbc`. It routes calls to the host system's local ODBC Driver Manager via `node.js` (specifically using `npx` for TypeScript).
+This **MCP Server for ODBC** is a small TypeScript layer built on top of `node-odbc`. It routes calls to the host system's local ODBC Driver Manager via `node.js` (specifically using `npx` for TypeScript).
 
-## Operating Environment Setup & Prerequisites
+## Operating Environment Set Up & Prerequisites
 
-While the examples that follow are oriented toward the Virtuoso ODBC Connector, this guide will also work with other ODBC Connectors. We *strongly* encourage code contributions and usage demo submissions related to other database management systems for incorporation into this project.
+While the examples that follow are oriented toward the Virtuoso ODBC Connector, this guide will also work with other ODBC Connectors. We *strongly* encourage code contributions and submissions of usage demos related to other database management systems (DBMS) for incorporation into this project.
 
 ### Key System Components
-1. Check the `node.js` version. If it's not at least 21.1.0, upgrade or install explicitly using:
+
+1. Check the `node.js` version. If it's not at least `21.1.0`, upgrade or install explicitly using:
    ```sh
    nvm install v21.1.0
    ```
@@ -52,13 +53,13 @@ While the examples that follow are oriented toward the Virtuoso ODBC Connector, 
    ```sh
    odbcinst -j
    ```
-2. List available data source names by running: 
+2. List available data source names (DSNs) by running: 
    ```sh
    odbcinst -q -s
    ```
 
 ### Environment Variables
-As good security practice, you should use the `.env` file situated in the same directory as the `mcp-ser` to set bindings for the target Large Language Model API Key (if you want to use the OpenLink AI Layer (OPAL) via ODBC), ODBC Data Source Name (`ODBC_DSN`), User (`ODBC_USER`), Password (`ODBC_PWD`), and ODBC INI (`ODBCINI`).
+As good security practice, you should use the `.env` file situated in the same directory as the `mcp-ser` to set bindings for the ODBC Data Source Name (`ODBC_DSN`), the User (`ODBC_USER`), the Password (`ODBC_PWD`), the ODBC INI (`ODBCINI`), and, if you want to use the OpenLink AI Layer (OPAL) via ODBC, the target Large Language Model (LLM) API Key (`API_KEY`).
 
 ```sh
 API_KEY=sk-xxx
@@ -67,23 +68,25 @@ ODBC_USER=dba
 ODBC_PASSWORD=dba
 ODBCINI=/Library/ODBC/odbc.ini 
 ```
+
 # Usage
 
 ## Tools
 After successful installation, the following tools will be available to MCP client applications.
 
 ### Overview
-|name|description|
-|---|---|
-|`get_schemas`|List database schemas accessible to connected database management system (DBMS).|
-|`get_tables`|List tables associated with a selected database schema.|
-|`describe_table`|Provide the description of a table associated with a designated database schema. This includes information about column names, data types, null handling, autoincrement, primary key, and foreign keys|
-|`filter_table_names`|List tables, based on a substring pattern from the `q` input field, associated with a selected database schema.|
-|`query_database`|Execute a SQL query and return results in JSON Lines (JSONL) format.|
-|`execute_query`|Execute a SQL query and return results in JSON Lines (JSONL) format.|
-|`execute_query_md`|Execute a SQL query and return results in Markdown table format.|
-|`spasql_query`|Execute a SPASQL query and return results.|
-|`sparql_query`|Execute a SPARQL query and return results.|
+
+|name                 |description|
+|:---                 |:---|
+|`get_schemas`        |List database schemas accessible to connected database management system (DBMS).|
+|`get_tables`         |List tables associated with a selected database schema.|
+|`describe_table`     |Provide the description of a table associated with a designated database schema. This includes information about column names, data types, null handling, autoincrement, primary key, and foreign keys|
+|`filter_table_names` |List tables associated with a selected database schema, based on a substring pattern from the `q` input field.|
+|`query_database`     |Execute a SQL query and return results in JSON Lines (JSONL) format.|
+|`execute_query`      |Execute a SQL query and return results in JSON Lines (JSONL) format.|
+|`execute_query_md`   |Execute a SQL query and return results in Markdown table format.|
+|`spasql_query`       |Execute a SPASQL query and return results.|
+|`sparql_query`       |Execute a SPARQL query and return results.|
 |`virtuoso_support_ai`|Interact with the Virtuoso Support Assistant/Agent — a Virtuoso-specific feature for interacting with LLMs|
 
 ### Detailed Description
@@ -221,9 +224,9 @@ This is a fork of the canonical edition that includes a JSON handling bug fix re
 
 #### Node x86_64 vs arm64 Conflict Issue
 
-The x86_64 rather rather than arm64 edition of `node` is in place, but the ODBC bridge and MCP server are arm64-based components.
+The x86_64 rather than arm64 edition of `node` may be in place, but the ODBC bridge and MCP server are arm64-based components.
 
-You solve this problem by performing the following steps:
+You can solve this problem by performing the following steps:
 
 1. Uninstall the x86_64 edition of `node` by running:
    ```sh
@@ -233,6 +236,10 @@ You solve this problem by performing the following steps:
    ```sh
    arch
    ```
+   - if that returns x86_64, then run the following command to change the active mode:
+     ```
+     arch arm64
+     ```
 3. Install the arm64 edition of `node` by running:
    ```sh
    nvm install 21.1.0
@@ -240,7 +247,7 @@ You solve this problem by performing the following steps:
 
 #### Node to ODBC Bridge Layer Incompatibility
 
-When attempting to use a Model Context Protocol (MCP) ODBC Server on Apple Silicon machines, you may encounter architecture mismatch errors. This occurs because the Node.js ODBC native module (`odbc.node`) is compiled for ARM64 architecture, but attempting to use the x86_64-based edition of the unixODBC runtime.
+When attempting to use a Model Context Protocol (MCP) ODBC Server on Apple Silicon machines, you may encounter architecture mismatch errors. These occur because the Node.js ODBC native module (`odbc.node`) is compiled for ARM64 architecture, but the x86_64-based edition of the unixODBC runtime is being loaded.
 
 Typical error message:
 
@@ -253,7 +260,7 @@ You solve this problem by performing the following steps:
 1. Verify your Node.js is running in ARM64 mode:
 
    ```bash
-   node -p "process.arch"  # Should output: arm64
+   node -p "process.arch"  # Should output: `arm64`
    ```
 
 2. Install unixODBC for ARM64:
@@ -297,7 +304,7 @@ You solve this problem by performing the following steps:
 - Both unixODBC and the Node.js ODBC module must be ARM64-compatible
 - Using environment variables (`export npm_config_arch=arm64`) is more reliable than npm config commands
 - Always verify architecture with the `file` command or `node -p "process.arch"`
-- When using Homebrew on Apple Silicon, commands should be prefixed with `arch -arm64` to ensure ARM64 binaries
+- When using Homebrew on Apple Silicon, commands can be prefixed with `arch -arm64` to force use of ARM64 binaries
 
 ## MCP Application Usage
 

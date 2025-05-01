@@ -14,7 +14,7 @@ While the examples that follow are oriented toward the Virtuoso ODBC Connector, 
 
 ### Key System Components
 
-1. Check the `node.js` version. If it's not at least `21.1.0`, upgrade or install explicitly using:
+1. Check the `node.js` version. If it's not at least `21.1.0` or higher, upgrade or install explicitly using:
    ```sh
    nvm install v21.1.0
    ```

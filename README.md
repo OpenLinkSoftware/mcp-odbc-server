@@ -41,8 +41,7 @@ While the examples that follow are oriented toward the Virtuoso ODBC Connector, 
    ```sh
    npm init -y
    ```
-4. Add entry `"type":"module"` to the `package.json` file
-5. Run 
+4. Run 
    ```sh
    npm install @modelcontextprotocol/sdk zod tsx odbc dotenv
    ```

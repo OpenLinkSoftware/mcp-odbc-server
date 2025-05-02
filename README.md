@@ -214,7 +214,7 @@ This is a fork of the canonical edition that includes a JSON handling bug fix re
    ```
 3. Provide the following value in the `Arguments` input field of MCP Inspectors UI from http://localhost:6274
    ```sh
-   tsx /path-to-mcp-odbc/src/main.ts
+   tsx /path/to/mcp-odbc-server/src/main.ts
    ```
 4. Click on the `Connect` button to initialize your session with the designated MCP Server
 

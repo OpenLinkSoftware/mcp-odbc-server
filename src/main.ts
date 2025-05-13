@@ -42,7 +42,7 @@ const API_KEY = myEnv.API_KEY ?? "none";             // Default API key
 // Initialize the MCP server with identification info
 const server = new McpServer({
     name: "MCP ODBC Server",
-    version: "1.0.13"
+    version: "1.0.14"
 });
 
 function dataToMD (data: any) {
@@ -58,6 +58,18 @@ function dataToMD (data: any) {
     }
     return mdTable;
 }
+
+
+async function supportsCatalogs(conn: odbc.Connection): Promise<boolean> {
+  const catTerm: string = await conn.getInfo(odbc.SQL_CATALOG_TERM);
+  if (!catTerm) {
+    const usage: number = await conn.getInfo(odbc.SQL_CATALOG_USAGE);
+    const flag = odbc.SQL_CU_TABLE_DEFINITION | odbc.SQL_CU_DML_STATEMENTS;
+    return (usage & flag) !== 0;
+  }
+  return true;
+}
+
 
 /**
  * Tool to retrieve all schema names from the database
@@ -106,8 +118,12 @@ server.tool(
         try {
             // Establish database connection using provided credentials
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
-            const result = await connection.tables(null, null, null, null);
-            const catalogs = [...new Set(result.map((item: any) => item.TABLE_QUALIFIER))].map(name => ({ CATALOG_NAME: name }));;
+            const has_catalogs = await supportsCatalogs(connection);
+            const result = has_catalogs ? await connection.tables('%', null, null, null)
+            							: await connection.tables(null, '%', null, null)
+            const catalogs = has_catalogs
+                             ? [...new Set(result.map((item: any) => item.TABLE_QUALIFIER))].map(name => ({ CATALOG_NAME: name }))
+                             : [...new Set(result.map((item: any) => item.TABLE_OWNER))].map(name => ({ CATALOG_NAME: name }))
             let tool_result;
             if ('jsonl' === format)
                 tool_result = catalogs.map(row => JSON.stringify(row)).join("\n");
@@ -147,7 +163,9 @@ server.tool(
             // Establish database connection using provided credentials
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             // Retrieve table information using ODBC tables method
-            const data = await connection.tables(schema, null, null, null);
+            const has_catalogs = await supportsCatalogs(connection);
+            const data = has_catalogs ? await connection.tables(schema, null, null, null)
+                                      : await connection.tables(null, schema, null, null);
             // Return data as formatted JSON
             let tool_result;
             if ('jsonl' === format)
@@ -180,8 +198,10 @@ server.tool(
             // Establish database connection using provided credentials
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             // Retrieve table information using ODBC tables method
+            const has_catalogs = await supportsCatalogs(connection)
             const tablesInfo: any = [];
-            const data = await connection.tables(schema, null, null, null);
+            const data = has_catalogs ? await connection.tables(schema, null, null, null)
+                                      : await connection.tables(null, schema, null, null);
             // Return data as formatted JSON
             for (const row of data) {
                 if ((row as any).TABLE_NAME.includes(q)) {

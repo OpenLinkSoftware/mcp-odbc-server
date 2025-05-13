@@ -60,14 +60,24 @@ function dataToMD (data: any) {
 }
 
 
-async function supportsCatalogs(conn: odbc.Connection): Promise<boolean> {
-  const catTerm: string = await conn.getInfo(odbc.SQL_CATALOG_TERM);
-  if (!catTerm) {
-    const usage: number = await conn.getInfo(odbc.SQL_CATALOG_USAGE);
-    const flag = odbc.SQL_CU_TABLE_DEFINITION | odbc.SQL_CU_DML_STATEMENTS;
-    return (usage & flag) !== 0;
-  }
-  return true;
+// Define interface for the table structure returned by ODBC
+interface OdbcTableRow {
+  TABLE_QUALIFIER?: string;
+  TABLE_OWNER?: string;
+  TABLE_NAME: string;
+  [key: string]: any; // For other properties that might exist
+}
+
+async function supportsCatalogs(connection: odbc.Connection): Promise<boolean> {
+    try{
+        const cats = await connection.tables('%', null, null, null) as OdbcTableRow[];
+        if (cats.length && cats[0].TABLE_QUALIFIER)
+            return true;
+        else
+            return false;
+    } catch (_) {
+        return false;
+    }
 }
 
 

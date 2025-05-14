@@ -130,10 +130,17 @@ server.tool(
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             const has_catalogs = await supportsCatalogs(connection);
             const result = has_catalogs ? await connection.tables('%', null, null, null)
-            							: await connection.tables(null, '%', null, null)
-            const catalogs = has_catalogs
-                             ? [...new Set(result.map((item: any) => item.TABLE_QUALIFIER))].map(name => ({ CATALOG_NAME: name }))
-                             : [...new Set(result.map((item: any) => item.TABLE_OWNER))].map(name => ({ CATALOG_NAME: name }))
+                                        : await connection.tables(null, '%', null, null)
+            let cat_name = "TABLE_CAT"
+            if (result && result.length) {
+                let row = result[0] as Record<string, any>;
+                if (has_catalogs)
+                    cat_name = "TABLE_CAT" in row ? "TABLE_CAT" : "TABLE_QUALIFIER";
+                else
+                    cat_name = 'TABLE_SCHEM' in row ? "TABLE_SCHEM" : "TABLE_OWNER";
+            }
+            const catalogs = [...new Set(result.map((item: any) => item[cat_name]))].map(name => ({ CATALOG_NAME: name }))
+
             let tool_result;
             if ('jsonl' === format)
                 tool_result = catalogs.map(row => JSON.stringify(row)).join("\n");
@@ -210,8 +217,9 @@ server.tool(
             // Retrieve table information using ODBC tables method
             const has_catalogs = await supportsCatalogs(connection)
             const tablesInfo: any = [];
-            const data = has_catalogs ? await connection.tables(schema, null, null, null)
-                                      : await connection.tables(null, schema, null, null);
+            schema = schema || '%';
+            const data = has_catalogs ? await connection.tables(schema, null, '%', null)
+                                      : await connection.tables(null, schema, '%', null);
             // Return data as formatted JSON
             for (const row of data) {
                 if ((row as any).TABLE_NAME.includes(q)) {
@@ -259,7 +267,9 @@ server.tool(
             // Establish database connection
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             // Retrieve column information for the specified table
-            const data = await connection.columns(schema, null, table, null);
+            const has_catalogs = await supportsCatalogs(connection)
+            const data = has_catalogs ? await connection.columns(schema, null, table, null)
+                                      : await connection.columns(null, schema, table, null);
             let tool_result;
             if ('jsonl' === format)
                 tool_result = data.map(row => JSON.stringify(row)).join("\n");

@@ -70,7 +70,7 @@ interface OdbcTableRow {
 
 async function supportsCatalogs(connection: odbc.Connection): Promise<boolean> {
     try{
-        const cats = await connection.tables('%', null, null, null) as OdbcTableRow[];
+        const cats = await connection.tables('%', "", "", null) as OdbcTableRow[];
         if (cats.length && cats[0].TABLE_QUALIFIER)
             return true;
         else
@@ -129,8 +129,8 @@ server.tool(
             // Establish database connection using provided credentials
             connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
             const has_catalogs = await supportsCatalogs(connection);
-            const result = has_catalogs ? await connection.tables('%', null, null, null)
-                                        : await connection.tables(null, '%', null, null)
+            const result = has_catalogs ? await connection.tables('%', "", "", null)
+                                        : await connection.tables(null, '%', "", null)
             let cat_name = "TABLE_CAT"
             if (result && result.length) {
                 let row = result[0] as Record<string, any>;

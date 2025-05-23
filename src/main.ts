@@ -387,42 +387,6 @@ server.tool(
 );
 
 /**
- * Tool to execute a SPARQL query on the Virtuoso database
- * Parameters:
- * - query: SPARQL query string (required)
- * - format: Result format (default: 'json')
- * - timeout: Query timeout in milliseconds (optional)
- * - user: Database username (optional)
- * - password: Database password (optional)
- * - dsn: ODBC data source name (optional)
- */
-server.tool(
-    "sparql_query",
-    `Execute a SPARQL query and return results.`,
-    {
-        query: z.string(), format: z.string().optional(), timeout: z.number().optional(),
-        user: z.string().optional(), password: z.string().optional(), dsn: z.string().optional()
-    },
-    async ({ query, format = 'json', timeout = 30000, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN }) => {
-        let connection;
-        try {
-            // Establish database connection
-            connection = await odbc.connect(`DSN=${dsn};UID=${user};PWD=${password}`);
-            // Call the sparqlQuery function with parameters
-            const data = await connection.query('select "UB".dba."sparqlQuery"(?,?,?) as result', [query, format, timeout]);
-            type ResultRow = { result: string };
-            return { content: [{ type: "text", text: (data[0] as ResultRow).result }] };
-        } catch (error) {
-            return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
-        } finally {
-            if (connection) {
-                await connection.close();
-            }
-        }
-    }
-);
-
-/**
  * Tool to use the Virtuoso AI support function
  * Parameters:
  * - prompt: AI prompt text (required)

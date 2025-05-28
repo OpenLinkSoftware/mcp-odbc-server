@@ -113,7 +113,9 @@ server.tool(
         } finally {
             // Ensure connection is closed even if an error occurs
             if (connection) {
-                await connection.close();
+                try {
+                    await connection.close();
+                } catch (_) {}
             }
         }
     }
@@ -155,7 +157,9 @@ server.tool(
         } finally {
             // Ensure connection is closed even if an error occurs
             if (connection) {
-                await connection.close();
+                try {
+                    await connection.close();
+                } catch (_) {}
             }
         }
     }
@@ -198,7 +202,9 @@ server.tool(
         } finally {
             // Ensure connection is closed even if an error occurs
             if (connection) {
-                await connection.close();
+                try {
+                    await connection.close();
+                } catch (_) {}
             }
         }
     }
@@ -240,7 +246,9 @@ server.tool(
         } finally {
             // Ensure connection is closed even if an error occurs
             if (connection) {
-                await connection.close();
+                try {
+                    await connection.close();
+                } catch (_) {}
             }
         }
     }
@@ -282,7 +290,9 @@ server.tool(
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
         } finally {
             if (connection) {
-                await connection.close();
+                try {
+                    await connection.close();
+                } catch (_) {}
             }
         }
     }
@@ -316,7 +326,9 @@ async function query_database(query: string, user: string, password: string, dsn
         return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
     } finally {
         if (connection) {
-            await connection.close();
+                try {
+                    await connection.close();
+                } catch (_) {}
         }
     }
 }
@@ -380,7 +392,9 @@ server.tool(
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
         } finally {
             if (connection) {
-                await connection.close();
+                try {
+                    await connection.close();
+                } catch (_) {}
             }
         }
     }
@@ -415,7 +429,9 @@ server.tool(
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
         } finally {
             if (connection) {
-                await connection.close();
+                try {
+                    await connection.close();
+                } catch (_) {}
             }
         }
     }
@@ -598,7 +614,9 @@ server.tool(
             return { content: [{ type: "text", text: `Error: ${JSON.stringify(error, null, 2)}` }], isError: true };
         } finally {
             if (connection) {
-                await connection.close();
+                try {
+                    await connection.close();
+                } catch (_) {}
             }
         }
     }

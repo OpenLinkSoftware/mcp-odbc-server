@@ -18,6 +18,8 @@ import { fileURLToPath } from "url";
 // Get the current file's directory path for ES modules (as __dirname is not available by default)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const parentDir = path.dirname(__dirname);
+
 
 /**
  * Loads environment variables from a file and merges them with process.env
@@ -33,7 +35,7 @@ function loadEnv(filePath: string): Record<string, string> {
 }
 
 // Load environment variables, providing defaults if not found
-const myEnv = loadEnv(path.join(__dirname, ".env"));
+const myEnv = loadEnv(path.join(parentDir, ".env"));
 const ODBC_DSN = myEnv.ODBC_DSN ?? "Local Virtuoso"; // Default DSN for Virtuoso
 const ODBC_USER = myEnv.ODBC_USER ?? "demo";         // Default username
 const ODBC_PASSWORD = myEnv.ODBC_PASSWORD ?? "demo"; // Default password

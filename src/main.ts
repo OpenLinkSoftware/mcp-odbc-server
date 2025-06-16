@@ -440,13 +440,16 @@ server.tool(
 );
 
 server.tool(
-    "sparql_get_entity_types",
+    "sparql_list_entity_types",
     `This query retrieves all entity types in the RDF graph, along with their labels and comments if available.
      It filters out blank nodes and ensures that only IRI types are returned.
      The LIMIT clause is set to 100 to restrict the number of entity types returned.`,
-    { user: z.string().optional(), password: z.string().optional(),
+    { graph_iri: z.string().optional(), user: z.string().optional(), password: z.string().optional(),
         dsn: z.string().optional(), format: z.string().optional() },
-    async ({ user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
+    async ({ graph_iri = undefined, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
+    const filterGraph = (typeof graph_iri === 'string' && graph_iri.trim() !== '')
+        ? `FILTER (?g = <${graph_iri}>)`
+        : '';
     const query = `SELECT DISTINCT * FROM (
         SPARQL
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
@@ -469,6 +472,7 @@ server.tool(
 
                 FILTER (isIRI(?o) && !isBlank(?o))
             }
+            ${filterGraph}
         }
         LIMIT 100
     ) AS x`;
@@ -477,13 +481,16 @@ server.tool(
 );
 
 server.tool(
-    "sparql_get_entity_types_detailed",
+    "sparql_list_entity_types_detailed",
     `This query retrieves all entity types in the RDF graph, along with their labels and comments if available.
     It filters out blank nodes and ensures that only IRI types are returned.
     The LIMIT clause is set to 100 to restrict the number of entity types returned.`,
-    { user: z.string().optional(), password: z.string().optional(),
+    { graph_iri: z.string().optional(), user: z.string().optional(), password: z.string().optional(),
         dsn: z.string().optional(), format: z.string().optional() },
-    async ({ user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
+    async ({ graph_iri = undefined, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
+    const filterGraph = (typeof graph_iri === 'string' && graph_iri.trim() !== '')
+        ? `FILTER (?g = <${graph_iri}>)`
+        : '';
     const query = `
         SELECT * FROM (
             SPARQL
@@ -499,6 +506,7 @@ server.tool(
                     OPTIONAL {?o rdfs:comment ?comment . FILTER (LANG(?comment) = "en" || LANG(?comment) = "")}
                     FILTER (isIRI(?o) && !isBlank(?o))
                 }
+               ${filterGraph}
             }
             GROUP BY ?o
             ORDER BY ?o
@@ -510,14 +518,17 @@ server.tool(
 );
 
 server.tool(
-    "sparql_get_entity_types_samples",
+    "sparql_list_entity_types_samples",
     `This query retrieves samples of entities for each type in the RDF graph, along with their labels and counts.
     It groups by entity type and orders the results by sample count in descending order.
     Note: The LIMIT clause is set to 20 to restrict the number of entity types returned.
     `,
-    { user: z.string().optional(), password: z.string().optional(),
+    { graph_iri: z.string().optional(), user: z.string().optional(), password: z.string().optional(),
         dsn: z.string().optional(), format: z.string().optional() },
-    async ({ user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
+    async ({ graph_iri = undefined, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
+    const filterGraph = (typeof graph_iri === 'string' && graph_iri.trim() !== '')
+        ? `FILTER (?g = <${graph_iri}>)`
+        : '';
     const query = `
         SELECT * FROM (
             SPARQL
@@ -533,6 +544,7 @@ server.tool(
                     OPTIONAL {?o rdfs:label ?olabel . FILTER (LANG(?olabel) = "en" || LANG(?olabel) = "")}
                     FILTER (isIRI(?o) && !isBlank(?o))
                 }
+                ${filterGraph}
             }
             GROUP BY ?slabel ?o ?olabel
             ORDER BY DESC(?sampleCount) ?o ?slabel ?olabel
@@ -544,11 +556,14 @@ server.tool(
 );
 
 server.tool(
-    "sparql_get_ontologies",
+    "sparql_list_ontologies",
     `This query retrieves all ontologies in the RDF graph, along with their labels and comments if available.`,
-    { user: z.string().optional(), password: z.string().optional(),
+    { graph_iri: z.string().optional(), user: z.string().optional(), password: z.string().optional(),
         dsn: z.string().optional(), format: z.string().optional() },
-    async ({ user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
+    async ({ graph_iri = undefined, user = ODBC_USER, password = ODBC_PASSWORD, dsn = ODBC_DSN, format = 'json' }) => {
+    const filterGraph = (typeof graph_iri === 'string' && graph_iri.trim() !== '')
+        ? `FILTER (?g = <${graph_iri}>)`
+        : '';
     const query = `
     SELECT * FROM (
         SPARQL
@@ -570,6 +585,7 @@ server.tool(
                 }
                 FILTER (isIRI(?s) && !isBlank(?s))
             }
+            ${filterGraph}
         }
         LIMIT 100
     ) AS x

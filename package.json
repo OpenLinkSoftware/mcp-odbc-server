@@ -12,7 +12,7 @@
   "scripts": {
     "start": "tsx src/main.ts",
     "prepare": "npm run build",
-    "build": "tsc -p tsconfig.json && mv dist/main.js dist/mcp-odbc-server.js && sh -c '[ -f dist/.env ] || cp _env dist/.env'",
+    "build": "tsc -p tsconfig.json && mv dist/main.js dist/mcp-odbc-server.js && sh -c '[ -f .env ] || cp _env .env'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

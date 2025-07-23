@@ -1,4 +1,4 @@
-# Introduction
+# OpenLink MCP Server for ODBC
 
 This document covers the set up and use of a generic ODBC server for the Model Context Protocol (MCP), referred to as an `mcp-odbc` server. It has been developed to provide Large Language Models with transparent access to ODBC-accessible data sources via a Data Source Name configured for a specific ODBC Connector (also called an ODBC Driver).
 
@@ -14,7 +14,7 @@ While the examples that follow are oriented toward the Virtuoso ODBC Connector, 
 
 ### Key System Components
 
-1. Check the `node.js` version. If it's not at least `21.1.0` or higher, upgrade or install explicitly using:
+1. Check the `node.js` version. If it's not `21.1.0` or higher, upgrade or install explicitly using:
    ```sh
    nvm install v21.1.0
    ```
@@ -201,6 +201,7 @@ After successful installation, the following tools will be available to MCP clie
     [![MCP Inspector](https://www.openlinksw.com/data/screenshots/mcp-server-inspector-demo-1.png)](https://www.openlinksw.com/data/screenshots/mcp-server-inspector-demo-1.png)
 
 #### OpenLink MCP Inspector Tool Edition
+
 This is a fork of the canonical edition that includes a JSON handling bug fix related to use with this MCP Server.
 
 1. run
@@ -246,7 +247,7 @@ You can solve this problem by performing the following steps:
 
 #### Node to ODBC Bridge Layer Incompatibility
 
-When attempting to use a Model Context Protocol (MCP) ODBC Server on Apple Silicon machines, you may encounter architecture mismatch errors. These occur because the Node.js ODBC native module (`odbc.node`) is compiled for ARM64 architecture, but the x86_64-based edition of the unixODBC runtime is being loaded.
+When attempting to use a Model Context Protocol (MCP) ODBC Server on Apple Silicon machines, you may encounter architecture mismatch errors. These occur because the `Node.js` ODBC native module (`odbc.node`) is compiled for ARM64 architecture, but the x86_64-based edition of the unixODBC runtime is being loaded.
 
 Typical error message:
 
@@ -256,7 +257,7 @@ Error: dlopen(...odbc.node, 0x0001): tried: '...odbc.node' (mach-o file, but is 
 
 You solve this problem by performing the following steps:
 
-1. Verify your Node.js is running in ARM64 mode:
+1. Verify your `Node.js` is running in ARM64 mode:
 
    ```bash
    node -p "process.arch"  # Should output: `arm64`
@@ -300,14 +301,15 @@ You solve this problem by performing the following steps:
 
 #### Key Points
 
-- Both unixODBC and the Node.js ODBC module must be ARM64-compatible
-- Using environment variables (`export npm_config_arch=arm64`) is more reliable than npm config commands
+- Both unixODBC and the `Node.js` ODBC module must be ARM64-compatible
+- Using environment variables (`export npm_config_arch=arm64`) is more reliable than `npm config` commands
 - Always verify architecture with the `file` command or `node -p "process.arch"`
 - When using Homebrew on Apple Silicon, commands can be prefixed with `arch -arm64` to force use of ARM64 binaries
 
 ## MCP Application Usage
 
 ### Claude Desktop Configuration
+
 The path for this config file is: `~{username}/Library/Application Support/Claude/claude_desktop_config.json`.
 
 ```json
@@ -332,6 +334,7 @@ The path for this config file is: `~{username}/Library/Application Support/Claud
 ```
 
 ### Claude Desktop Usage
+
 1. Start the application.
 2. Apply configuration (from above) via Settings | Developer user interface.
 3. Ensure you have a working ODBC connection to a Data Source Name (DSN).
@@ -368,9 +371,10 @@ The path for this config file is: `~{username}/Library/Application\ Support/Code
 ```
 
 ### Cline (Visual Studio Extension) Usage
-1. Use Shift+Command+P to open the Command Palette.
+
+1. Use Shift+Command+`P` to open the Command Palette.
 2. Type in: `Cline`.
-3. Select: Cline View, which opens the Cline UI in the VSCode sidebar.
+3. Select: `Cline View`, which opens the Cline UI in the VSCode sidebar.
 4. Use the four-squares icon to access the UI for installing and configuring MCP servers.
 6. Apply the Cline Config (from above).
 7. Return to the extension's main UI and start a new task requesting processing of the following prompt:
@@ -381,10 +385,12 @@ The path for this config file is: `~{username}/Library/Application\ Support/Code
     [![Cline Extension](https://www.openlinksw.com/data/screenshots/cline-extension-mcp-server-odbc-demo-1.png)](https://www.openlinksw.com/data/screenshots/cline-extension-mcp-server-odbc-demo-1.png)
 
 ### Cursor Configuration
+
 Use the settings gear to open the configuration menu that includes the MCP menu item for registering and configuring `mcp servers`.
 
 ### Cursor Usage
-1. Use the `Command + I` or `Control + I` key combination to open the Chat Interface.
+
+1. Use the Command+`I` or Control+`I` key combination to open the Chat Interface.
 2. Select `Agent` from the drop-down at the bottom left of the UI, where the default is `Ask`.
 3. Enter your prompt, qualifying the use of the `mcp-server for odbc` using the pattern: `@odbc {rest-of-prompt}`.
 4. Click on "Accept" to execute the prompt.
@@ -392,6 +398,7 @@ Use the settings gear to open the configuration menu that includes the MCP menu 
    [![Cursor Editor](https://www.openlinksw.com/data/screenshots/cursor-editor-mcp-config-for-odbc-server-1.png)](https://www.openlinksw.com/data/screenshots/cursor-editor-mcp-config-for-odbc-server-1.png)
 
 # Related
+
 * [MCP Inspector Usage Screencast](https://www.openlinksw.com/data/screencasts/mcp-inspector-odbc-sparql-spasql-demo-1.mp4)
 * [Basic Claude Desktop Usage Screencast](https://www.openlinksw.com/data/screencasts/claude-odbc-mcp-sql-spasql-demo-1.mp4)
 * [Basic Cline Visual Studio Code Extension Usage Screencast](https://www.openlinksw.com/data/screencasts/cline-vscode-mcp-odbc-sql-spasql-1.mp4)
